@@ -60,31 +60,19 @@ Note: this reflects what the API returns, so sensitive configuration values (pas
 
 ## Editing
 
-`bookmarklet.js` is the source. After changing it, re-inline it into `install.html`:
+`bookmarklet.js` is the source. `install.html` is generated — it has the bookmarklet inlined as a string, so never hand-edit that `<script>` block.
 
-```python
-import json
+After changing `bookmarklet.js`:
 
-with open('bookmarklet.js') as f:
-    bm = ' '.join(f.read().split())
-encoded = json.dumps(bm)
-
-with open('install.html') as f:
-    html = f.read()
-
-start = html.find('<script>')
-end = html.find('</script>') + len('</script>')
-script = (
-    '<script>\n    var BOOKMARKLET = ' + encoded + ';\n'
-    '    document.getElementById("bookmarklet-link").href = BOOKMARKLET;\n'
-    '    document.getElementById("bookmarklet-link").textContent = "Cortex Engineering Assistant";\n'
-    '    document.getElementById("manual-code").textContent = BOOKMARKLET;\n'
-    '  </script>'
-)
-
-with open('install.html', 'w') as f:
-    f.write(html[:start] + script + html[end:])
 ```
+python3 build.py                                  # inline + syntax check
+python3 build.py --zip                            # also write dist/cortex-engineering-assistant.zip
+python3 build.py --zip ~/Downloads/tool.zip       # or to a specific path
+```
+
+`build.py` runs `node --check` on the source (skipped if node isn't installed), rewrites the whole `<script>` block, and verifies the inlined string round-trips before finishing.
+
+Then reload the install page and re-drag the bookmark to pick up the change.
 
 ## Credits
 
